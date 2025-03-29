@@ -1,4 +1,5 @@
 from collections import Counter
+from math import log2
 
 def help1(li, lo, hi):
     c = 0
@@ -47,3 +48,85 @@ def shannon_fano(input_text):
 
 
 print(shannon_fano("kommunikationstechnik"))
+
+def redundacy():
+    pass
+
+class Code:
+    def __init__(self, nachrichtenquelle, codierungsvorschrift):
+        self.nachrichtenquelle = nachrichtenquelle.lower()
+        self.codierungsvorschrift = codierungsvorschrift
+
+        self.codierung = codierungsvorschrift(nachrichtenquelle)
+        self.decodierung = dict()
+        for x in self.codierung:
+            self.decodierung[self.codierung[x]] = x
+        self.mittlere_codewortlaenge = 0
+        for x in self.codierung:
+            self.mittlere_codewortlaenge += len(self.codierung[x])
+        self.mittlere_codewortlaenge /= len(self.codierung)
+
+        self.letters = dict()
+        mittlerer_informationsgehalt = 0
+        for letter in nachrichtenquelle.lower():
+            # Auftrittswahrscheinlichkeit
+            c = 0
+            for x in nachrichtenquelle.lower():
+                if x == letter:
+                    c += 1
+            auftritt = c / len(nachrichtenquelle)
+
+            info = log2(1 / auftritt)
+            mittlerer_informationsgehalt += info
+        mittlerer_informationsgehalt /= len(nachrichtenquelle)
+
+        self.redundanz = self.mittlere_codewortlaenge - mittlerer_informationsgehalt
+
+    def encode(self, word):
+        word = word.lower()
+        codes = [self.codierung[x] for x in word]
+        code = "".join(codes)
+        av_char_length = sum([len(x) for x in codes]) / len(codes)
+        avg_info = 0
+        for letter in word.lower():
+            c = 0
+            for x in word.lower():
+                if x == letter:
+                    c += 1
+            auftritt = c / len(word)
+
+            info = log2(1 / auftritt)
+            avg_info += info
+        avg_info /= len(word)
+        redundancy = av_char_length - avg_info
+        return code, av_char_length, redundancy
+
+
+
+
+
+    def decode(self, word):
+        # word=decode(code)
+        res = ""
+        cur = ""
+        ind = 0
+        while True:
+            if ind == len(word):
+                break
+            cur += word[ind]
+            ind += 1
+            if cur in self.decodierung:
+                res += self.decodierung[cur]
+                cur = ""
+        return res
+
+# Klasse Code testen
+
+a = Code("Hochschule", shannon_fano)
+b = a.encode("HHHHHsucseeollll")
+print(b)
+print(a.decode(b[0]))
+
+c = a.encode("EEEEE")
+print(c)
+print(a.decode(c[0]))
