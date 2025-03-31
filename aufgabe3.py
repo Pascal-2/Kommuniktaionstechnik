@@ -1,5 +1,7 @@
 from collections import Counter
 from math import log2
+import random
+
 
 def help1(li, lo, hi):
     c = 0
@@ -130,3 +132,80 @@ print(a.decode(b[0]))
 c = a.encode("EEEEE")
 print(c)
 print(a.decode(c[0]))
+
+#Aufgabe 4
+from arithmetic_compressor import AECompressor
+from arithmetic_compressor.models import StaticModel
+
+from main import Source
+
+# create the model
+#model = StaticModel({'A': 0.5, 'B': 0.25, 'C': 0.25})
+with open("rfc2324.txt",'r', encoding="utf-8") as f:
+    text = f.read().lower()
+tempdict = Source(text).letters
+coffeedict = dict()
+for x in tempdict:
+    coffeedict[x] = tempdict[x][0]
+model = StaticModel(coffeedict)
+
+# create an arithmetic coder
+coder = AECompressor(model)
+
+# 1000 random letters from text
+from huffman import huffman
+shanFaCodierer = Code(text, shannon_fano)
+huffCodierer = huffman(text)
+
+tenTries = [[],[],[]]
+for i in range(10):
+    randomLetters = []
+    for _ in range(1000):
+        randomIndex = random.randint(0, len(text) - 1)
+        randomLetters.append(text[randomIndex])
+    # encode some data
+    data = "".join(randomLetters)
+    N = len(data)
+    compressed = coder.compress(data)
+    tenTries[0].append(len(compressed) - 4000) # to highlight changes between bars: subtracting most of all bars
+    tenTries[1].append(len(shanFaCodierer.encode(data)[0]) - 4000)
+    tenTries[2].append(len(huffCodierer.encode(data)[0]) - 4000)
+
+for x in tenTries:
+    print(x)
+
+import matplotlib.pyplot as plt
+
+# Data
+groups = ['1', '2', '3', '4', '5','6', '7', '8', '9', '10']
+bar1 = tenTries[0]  # Data for first bar in each group
+bar2 = tenTries[1]  # Data for second bar in each group
+bar3 = tenTries[2]  # Data for third bar in each group
+
+# Number of groups
+n_groups = len(groups)
+
+# Width of each bar
+bar_width = 0.25
+
+# Positions of the bars (shifted by a certain amount to create groups of 3)
+index = list(range(n_groups))
+plt.figure(figsize=(21, 9))
+# Create the plot
+fig, ax = plt.subplots()
+
+# Plot the bars
+ax.bar([x - bar_width for x in index], bar1, bar_width, label='Arithmetische Codierung')
+ax.bar(index, bar2, bar_width, label='Shannon-Fano Codierung')
+ax.bar([x + bar_width for x in index], bar3, bar_width, label='Huffman Codierung')
+
+# Labeling
+ax.set_xlabel('Groups')
+ax.set_ylabel('Codelänge - 4000')
+ax.set_title('Vergleich der Codierungsverfahren')
+ax.set_xticks(index)
+ax.set_xticklabels(groups)
+ax.legend()
+
+# Show plot
+plt.show()
