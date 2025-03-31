@@ -188,6 +188,7 @@ n_groups = len(groups)
 # Width of each bar
 bar_width = 0.25
 
+
 # Positions of the bars (shifted by a certain amount to create groups of 3)
 index = list(range(n_groups))
 plt.figure(figsize=(21, 9))
