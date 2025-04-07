@@ -141,7 +141,7 @@ from main import Source
 
 # create the model
 #model = StaticModel({'A': 0.5, 'B': 0.25, 'C': 0.25})
-with open("rfc2324.txt",'r', encoding="utf-8") as f:
+with open("rfc2324.txt", 'r', encoding="utf-8") as f:
     text = f.read().lower()
 tempdict = Source(text).letters
 coffeedict = dict()
