@@ -48,20 +48,37 @@ class LempelZiv:
 
 
 
+    def decode(self, bitstring):
+        # forming the tuples
+        tup_len = (self.backBits + self.subsequenceBits + 8)
+        num_of_tup = int(len(bitstring)/tup_len)
+        tuples = []
+        for i in range(0, num_of_tup * tup_len, tup_len):
+            cur_tup = bitstring[i : i + tup_len]
+            back = int(cur_tup[: self.backBits], 2)
+            subseq = int(cur_tup[self.backBits : self.backBits + self.subsequenceBits], 2)
+            end_char = chr(int(cur_tup[self.backBits + self.subsequenceBits :], 2))
+            tuples.append((back, subseq, end_char))
+        print(tuples)
+
+        message = []
+        for i in range(num_of_tup):
+            sequence = []
+            for j in range(len(message) - tuples[i][0], len(message) - tuples[i][0] + tuples[i][1]):
+                sequence.append(message[j])
+            sequence.append(tuples[i][2])
+            message += sequence
+        return "".join(message)
 
 
+a = LempelZiv(6, 5)
 
-
-    def decode(self, bitstring, charD):
-        pass
-
-
-a = LempelZiv(5, 2)
-
-test = "FISCHERSFRITZFISCHTFRISCHEFISCHE"
+test = "FISCHERSFRITZFISCHTFRISCHEFISCHE" #"BANANENANBAU" #
 
 res_test = a.encode(test)
 
 print(res_test)
 print(len(res_test))
 print(format(91, "08b"))
+
+print(a.decode(res_test))
