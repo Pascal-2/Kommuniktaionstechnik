@@ -10,8 +10,6 @@ class LempelZiv:
         res = []
         i = 0
         while i < len(message):
-            if i == 27:
-                print(1)
             sub = message[max(0, i - self.backtrackingLimit): i]
 
             indices = []
@@ -42,14 +40,13 @@ class LempelZiv:
                 next = message[i + n]
             res.append((0 if n == 0 else i - copy_index, n, next))
             i += n + 1
-        print(res)
+        # print(res)
         return "".join([format(x[0], f"0{self.backBits}b") + format(x[1], f"0{self.subsequenceBits}b") + format(ord(x[2]), "08b") for x in res])
 
 
 
 
     def decode(self, bitstring):
-        # forming the tuples
         tup_len = (self.backBits + self.subsequenceBits + 8)
         num_of_tup = int(len(bitstring)/tup_len)
         tuples = []
@@ -59,7 +56,7 @@ class LempelZiv:
             subseq = int(cur_tup[self.backBits : self.backBits + self.subsequenceBits], 2)
             end_char = chr(int(cur_tup[self.backBits + self.subsequenceBits :], 2))
             tuples.append((back, subseq, end_char))
-        print(tuples)
+        # print(tuples)
 
         message = []
         for i in range(num_of_tup):
@@ -70,15 +67,16 @@ class LempelZiv:
             message += sequence
         return "".join(message)
 
-
+# Tests
 a = LempelZiv(6, 5)
 
-test = "FISCHERSFRITZFISCHTFRISCHEFISCHE" #"BANANENANBAU" #
+testBanane = "BANANENANBAU"
+res_testBanane = a.encode(testBanane)
+print(res_testBanane)
+print(a.decode(res_testBanane))
 
-res_test = a.encode(test)
+testFisch = "FISCHERSFRITZFISCHTFRISCHEFISCHE"
+res_testFisch = a.encode(testFisch)
+print(res_testFisch)
+print(a.decode(res_testFisch))
 
-print(res_test)
-print(len(res_test))
-print(format(91, "08b"))
-
-print(a.decode(res_test))
