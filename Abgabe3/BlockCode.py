@@ -13,6 +13,7 @@ class BlockCode:
         I_k = np.eye(self.k, dtype=int)
         self.G = np.concatenate((I_k, self.P), axis=1)
 
+
         # Erstelle die Kontrollmatrix H = [P^T | I]
         I_p = np.eye(self.p, dtype=int)
         self.H = np.concatenate((self.P.T, I_p), axis=1)
