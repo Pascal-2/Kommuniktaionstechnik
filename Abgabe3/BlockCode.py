@@ -1,5 +1,6 @@
 import numpy as np
 from itertools import combinations
+import kanalFehler
 
 
 class BlockCode:
@@ -12,7 +13,6 @@ class BlockCode:
         # Erstelle die Generatormatrix G = [I | P]
         I_k = np.eye(self.k, dtype=int)
         self.G = np.concatenate((I_k, self.P), axis=1)
-
 
         # Erstelle die Kontrollmatrix H = [P^T | I]
         I_p = np.eye(self.p, dtype=int)
@@ -63,23 +63,60 @@ class BlockCode:
         return None, 0  # Korrektur nicht möglich
 
 
-# Beispielverwendung:
-if __name__ == "__main__":
-    # Beispiel-P-Matrix für (7, 4) Hamming-Code
-    P = np.array([
+def testBlockCode():
+    P_7_4_hamming = np.array([
         [1, 1, 0],
         [1, 0, 1],
         [0, 1, 1],
         [1, 1, 1]
     ])
-    bc = BlockCode(P, max_corr_bits=2)
-
+    bc = BlockCode(P_7_4_hamming, 1)
     msg = np.array([1, 0, 1, 1])
+    print("Nutzbits:", msg)
     codeword = bc.encode(msg)
     print("Codewort:", codeword)
 
     # Simuliere Fehler
-    received = codeword.copy()
-    received[2] ^= 1  # 1-Bit-Fehler
+    Channel = kanalFehler.FixedErrorChannel(1)
+
+    received = Channel(codeword)
     decoded, errors = bc.decode(received)
     print("Dekodiert:", decoded, "| Fehler korrigiert:", errors)
+    print()
+
+    P_custom1 = np.array([
+        [1, 1, 1, 1, 0, 0],
+        [0, 0, 1, 1, 1, 1]
+    ])
+    bc2 = BlockCode(P_custom1, 2)
+    msg = np.array([1, 0])
+    print("Nutzbits:", msg)
+    codeword = bc2.encode(msg)
+    print("Codewort:", codeword)
+
+    # Simuliere Fehler
+    Channel = kanalFehler.FixedErrorChannel(2)
+
+    received = Channel(codeword)
+    decoded, errors = bc2.decode(received)
+    print("Dekodiert:", decoded, "| Fehler korrigiert:", errors)
+    print()
+
+    P_custom2 = np.array([
+        [1, 1, 1, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 0],
+        [1, 0, 1, 0, 1, 0, 1]
+    ])
+    bc3 = BlockCode(P_custom2, 2)
+    msg = np.array([1, 0, 1])
+    print("Nutzbits:", msg)
+    codeword = bc3.encode(msg)
+    print("Codewort:", codeword)
+
+    # Simuliere Fehler
+    Channel = kanalFehler.FixedErrorChannel(2)
+
+    received = Channel(codeword)
+    decoded, errors = bc3.decode(received)
+    print("Dekodiert:", decoded, "| Fehler korrigiert:", errors)
+
